@@ -8,6 +8,7 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
 import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothClass
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothHidDevice
 import android.bluetooth.BluetoothHidDeviceAppSdpSettings
@@ -174,6 +175,7 @@ class SwitchHidService : Service() {
             if (isRegistered) {
                 ControllerHub.log("Registered as a HID gamepad.")
                 applyControllerName()
+                logDeviceClass()
                 ControllerHub.setStatus(Link.WAITING, "Waiting for the console")
                 connectPending()
             } else {
@@ -280,6 +282,28 @@ class SwitchHidService : Service() {
             }
         } catch (e: Exception) {
             ControllerHub.log("Could not rename Bluetooth ($e). Rename the phone to \"$CONTROLLER_NAME\" in Settings by hand.")
+        }
+    }
+
+    /**
+     * Writes the phone's Bluetooth device class to the log. It is the one part of a Pro
+     * Controller's identity that Android sets itself and gives apps no way to change, so
+     * when a console ignores the phone this line shows whether that is the likely reason.
+     */
+    private fun logDeviceClass() {
+        val deviceClass = try {
+            val getter = BluetoothAdapter::class.java.getMethod("getBluetoothClass")
+            (getter.invoke(adapter) as? BluetoothClass)?.deviceClass
+        } catch (e: Throwable) {
+            null // not readable on this Android version; nothing to report
+        } ?: return
+        if (deviceClass == PRO_CONTROLLER_DEVICE_CLASS) {
+            ControllerHub.log("Bluetooth device class is 0x%04X (gamepad), the same as a real Pro Controller.".format(deviceClass))
+        } else {
+            ControllerHub.log(
+                "Bluetooth device class is 0x%04X; a real Pro Controller reports 0x%04X (gamepad). Android does not let apps change it."
+                    .format(deviceClass, PRO_CONTROLLER_DEVICE_CLASS)
+            )
         }
     }
 
@@ -409,6 +433,9 @@ class SwitchHidService : Service() {
 
         private const val CHANNEL_ID = "controller"
         private const val NOTIFICATION_ID = 1
+
+        /** Major + minor device class of a real Pro Controller: peripheral, gamepad. */
+        private const val PRO_CONTROLLER_DEVICE_CLASS = 0x0508
 
         /** Used only when the user has not entered the phone's real address. */
         private val PLACEHOLDER_ADDRESS = byteArrayOf(0x7C, 0xBB.toByte(), 0x8A.toByte(), 0x4E, 0x21, 0x5D)

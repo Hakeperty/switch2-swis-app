@@ -36,7 +36,15 @@ Since system version 12, the *original* Switch only pairs with devices whose Blu
 that without root. Whether the Switch 2 applies the same check to original-style controllers
 is not documented anywhere I could find.
 
-The connection log on the main screen shows what happened:
+Everything an app is allowed to set already matches a real Pro Controller: the Bluetooth
+name, the HID service name, description and provider, the gamepad subclass and the report
+descriptor. Three things are set by the phone's system and cannot be changed by an app: the
+device class, the vendor/product ID record, and the maker prefix of the Bluetooth address.
+Current Android has no setting, permission or shell command for the device class; it is
+fixed by a system property only root can write.
+
+The connection log on the main screen shows what happened (it also prints the phone's
+device class when Android allows reading it):
 
 - **`Connected to …` followed by `Console → 0x02 request device info`** — the console
   accepted the phone. Setup continues and the status turns green.
