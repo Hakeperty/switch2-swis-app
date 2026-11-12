@@ -52,6 +52,35 @@ device class when Android allows reading it):
   the device-class check looks like. In that case no app-only fix exists; the options are a
   rooted phone or a small ESP32-S3 board acting as a bridge.
 
+## What was tried and what is left
+
+First attempt (Galaxy S24 Ultra, Android 17, Switch 2): the phone registered, renamed itself
+and became visible, and the console never connected. That is the device-class block.
+
+Findings from Android's Bluetooth source and security policy:
+
+- Android 14 and later take the device class from the system property
+  `bluetooth.device.class_of_device` when Bluetooth starts. Only the system and root can
+  write it; the `shell` user (ADB, Shizuku) cannot. Nothing else in the stack changes the
+  major/minor class, and registering as a HID device does not touch it.
+- Android 9 to 13 additionally read the global setting `bluetooth_class_of_device` every
+  time Bluetooth turns on. ADB can write that setting without root:
+
+  ```
+  settings put global bluetooth_class_of_device 9480      # 0x002508, gamepad
+  # turn Bluetooth off and on, then pair
+  settings delete global bluetooth_class_of_device        # undo
+  ```
+
+  So an unrooted phone on Android 9 to 13 can announce itself as a gamepad. This app runs
+  on Android 9 and later. Android 14 removed that code; whether a vendor build still honours
+  the setting can only be found out by trying it.
+- According to the JoyCon Droid documentation the console checks the device class only on
+  first pairing. A console that already remembers the phone's Bluetooth address lets the
+  unrooted phone connect. Getting it remembered needs one helper device once (a rooted
+  phone, or a Linux computer with Bluetooth) set to the phone's address; they describe it
+  as not guaranteed.
+
 ## Install
 
 Download `app-debug.apk` (from the latest run of the Build workflow, or build it yourself),
