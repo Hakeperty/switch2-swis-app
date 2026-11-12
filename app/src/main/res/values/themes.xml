@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.Swis" parent="Theme.Material3.Dark.NoActionBar">
+        <item name="colorPrimary">#EF5350</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="colorSecondary">#42A5F5</item>
+        <item name="android:colorBackground">#14161A</item>
+        <item name="colorSurface">#14161A</item>
+        <item name="android:statusBarColor">#14161A</item>
+        <item name="android:navigationBarColor">#14161A</item>
+    </style>
+</resources>

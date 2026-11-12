@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SWIS Controller</string>
+    <string name="channel_name">Controller connection</string>
+    <string name="notification_title">SWIS Controller is running</string>
+    <string name="notification_text">Your phone is acting as a Pro Controller.</string>
+    <string name="action_stop">Stop</string>
+
+    <string name="start">Start controller and pair</string>
+    <string name="reconnect">Reconnect to a paired console</string>
+    <string name="stop">Stop controller</string>
+    <string name="open_gamepad">Open gamepad</string>
+    <string name="macros">Macros</string>
+    <string name="address_label">This phone\'s Bluetooth address</string>
+    <string name="address_hint">AA:BB:CC:DD:EE:FF</string>
+    <string name="address_help">Find it in Settings → About phone → Status information → Bluetooth address. The console is told this address during setup, so enter it before pairing.</string>
+    <string name="save">Save</string>
+    <string name="how_to_title">How to connect</string>
+    <string name="how_to">1. On the Switch 2 open Controllers → Change Grip/Order and leave that screen open.\n2. Tap “Start controller and pair” here and allow the phone to be visible.\n3. Accept the pairing request on the phone if one appears.\n4. When the status turns green, open the gamepad and press L + R, then A.\n\nNext time, the console only needs to be awake: tap “Reconnect to a paired console”.</string>
+    <string name="log_title">Connection log</string>
+    <string name="copy_log">Copy</string>
+    <string name="clear_log">Clear</string>
+
+    <string name="macro_play">Play</string>
+    <string name="macro_stop">Stop</string>
+    <string name="macro_new">New</string>
+    <string name="macro_reset">Reset</string>
+    <string name="macro_delete">Delete</string>
+    <string name="macro_help">One step per line: milliseconds (or frames, e.g. 4f), then what is held. Buttons: A B X Y L R ZL ZR PLUS MINUS HOME CAPTURE UP DOWN LEFT RIGHT LS RS. Sticks: LS(x,y) RS(x,y) from -1 to 1, or LS_UP / LS_DOWN / LS_LEFT / LS_RIGHT. “loop:” marks where repeating starts. “-” holds nothing.</string>
+</resources>
