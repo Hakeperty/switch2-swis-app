@@ -12,6 +12,7 @@ No root and no extra hardware: the phone talks to the console directly over Blue
 | --- | --- |
 | Controller protocol, macro engine, touch handling, screens | Built and covered by 50 automated tests |
 | Pairing with a real Switch 2 | **Not yet tried on hardware** — see "Will the console accept it?" |
+| SWIS Pre-pair (Linux desktop app, works around the device-class block) | Built, 15 tests; not yet tried on hardware |
 | Infinite jump slash macro | Input order from published descriptions; timings are a starting point to tune |
 
 ## How it works
@@ -77,9 +78,54 @@ Findings from Android's Bluetooth source and security policy:
   the setting can only be found out by trying it.
 - According to the JoyCon Droid documentation the console checks the device class only on
   first pairing. A console that already remembers the phone's Bluetooth address lets the
-  unrooted phone connect. Getting it remembered needs one helper device once (a rooted
-  phone, or a Linux computer with Bluetooth) set to the phone's address; they describe it
-  as not guaranteed.
+  unrooted phone connect. Getting it remembered needs one helper device once, set to the
+  phone's address; they describe it as not guaranteed. **SWIS Pre-pair** (below) does this
+  from a Linux computer.
+
+## SWIS Pre-pair (Linux computer)
+
+A desktop app that makes the Switch 2 remember your phone. For about a minute, it gives the
+computer's Bluetooth adapter the phone's address, the gamepad device class, the name
+`Pro Controller` and Nintendo's vendor/product ID. It then pairs with the console and
+answers its setup questions with the same bytes as the phone app, and presses L + R.
+After that it puts the adapter and the Bluetooth service back exactly as they were.
+
+**Install (one command).** Download `swis-prepair-install.sh` from the latest run of the
+Build workflow (artifact *swis-prepair-linux-installer*) and run:
+
+```
+bash swis-prepair-install.sh
+```
+
+It asks for your password once. Then it installs BlueZ, Python's D-Bus and Tk modules and
+polkit (apt, dnf, pacman or zypper), puts the app in `/opt/swis-prepair`, adds
+**SWIS Pre-pair** to the app menu and opens it. From a clone, `./tools/prepair/install.sh`
+does the same. Add `--uninstall` to either one to remove everything again.
+
+**Use it.**
+
+1. Turn the phone's Bluetooth **off**, so the phone and the computer don't use the same
+   address at the same time.
+2. In SWIS Pre-pair, enter the phone's Bluetooth address and press **Start**.
+3. When it says *Ready*, open Controllers → Change Grip/Order on the Switch 2.
+4. When it says *Done*, turn the phone's Bluetooth back on and leave Change Grip/Order open.
+   In SWIS Controller, tap **Start controller and pair**.
+
+If something goes wrong part-way, **Restore Bluetooth** (or `sudo swis-prepair restore`) puts
+the adapter back. Unplugging a USB adapter or rebooting also resets its address.
+
+**Requirements.** The adapter must accept a new address. Intel, Broadcom and Qualcomm/CSR
+chips usually do, and most Realtek chips don't; the app says so if yours refuses. A cheap
+USB dongle with one of the working chips is enough. The pairing key the console created
+stays in `/var/lib/bluetooth/<phone address>/<console address>/info`.
+
+**Not yet tried on hardware.** The protocol replies are tested against the app's own test
+bytes, and a simulated console goes through the whole setup in the tests. Whether the
+console then accepts the phone, which doesn't have that pairing key, is what a real attempt
+will show.
+
+Command line: `sudo swis-prepair run --phone AA:BB:CC:DD:EE:FF [--adapter hci1]`,
+`swis-prepair check`. Tests: `python3 -m unittest discover -s tools/prepair`.
 
 ## Install
 
@@ -170,6 +216,7 @@ app/src/main/java/app/swis/controller/
   data/   settings and stored macros
   ui/     connection screen, gamepad, macro editor
 app/src/test/   protocol bytes, pacing, macro timing, and Robolectric tests of the screens
+tools/prepair/  SWIS Pre-pair for Linux: installer, desktop app, root helper, tests
 ```
 
 Protocol bytes follow the open-source emulators NXBT and joycontrol and dekuNukem's
